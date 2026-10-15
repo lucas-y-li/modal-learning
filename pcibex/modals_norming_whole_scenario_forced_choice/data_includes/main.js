@@ -14,6 +14,7 @@ Sequence(
     // "background",
     "instructions-1",
     "instructions-2",
+    "instructions-3",
     "practice-trial",
     "start",
     randomize("experimental-trial"),
@@ -127,7 +128,7 @@ newTrial("instructions-1",
     newText("title", "<b>Instructions</b><br><br>"),
     newText("instructions-1", "In this experiment, you will read short descriptions of everyday situations. Each story will be followed by something a speaker says or asks about the situation.<br><br>"),
     newText("instructions-2", "Some statements are about <b>rules or permission</b>: what a person is allowed to do according to the rules in the situation.<br><br>"),
-    newText("instructions-3", "Other statements are about <b>available information</b>: what could have happened, given what the people in the situation know.<br><br>"),
+    newText("instructions-3", "Other statements are about <b>available information</b>: what could have happened (or what could happen), given what the people in the situation know.<br><br>"),
     newText("instructions-4", "These can sometimes be different. Something can be against the rules but still possibly have happened. Likewise, something can be permitted even when the available information shows that it did not happen.<br><br>"),
     newButton("wait", "Click here to continue").center().print().wait()
 )
@@ -135,21 +136,22 @@ newTrial("instructions-1",
 newTrial("instructions-2",
     defaultText.center().print(),
     newText("title", "<b>Instructions</b><br><br>"),
-    newText("instructions-5", "In each trial, you will see two possible interpretations of what the speaker is talking about, labeled <b><span style='color:#C62828'>Interpretation A</span></b> and <b><span style='color:#1565C0'>Interpretation B</span></b>. Use the scale below it to indicate which interpretation better matches the speaker's meaning.<br><br>"),
-    newText("instructions-6", "If neither interpretation appropriately describes what the speaker is talking about, choose <b>\"Neither interpretation works here.\"</b><br><br>"),
-    newText("instructions-7", "Base your judgment only on the story and what the speaker says or asks. Do <b>not</b> rate how likely the event itself is. Your task is to determine what the speaker is talking about.<br><br>"),
+    newText("instructions-5", "In each trial, you will choose whether the speaker is talking about the <b>rules or permissions</b> or the <b>available information</b>.<br><br>"),
+    newText("instructions-6", "The speaker intends only one of these two meanings. Choose the option that best matches what the speaker means.</b><br><br>"),
+    newText("instructions-7", "Press the <b>F</b> key to select the option on the left.<br>Press the <b>J</b> key to select the option on the right.<br>You can also click on an answer to select it.<br><br>"),
+    newText("instructions-8", "Base your judgment only on the story and what the speaker says or asks. Do <b>not</b> rate how likely the event itself is. Your task is to determine what the speaker is talking about.<br><br>"),
     newButton("wait", "Click here to continue").center().print().wait()
 )
 
 newTrial("instructions-3",
     defaultText.center().print(),
     newText("title", "<b>Instructions</b><br><br>"),
-    newText("instructions-8", "Before starting the experiment, you will first be shown some practice trials.<br><br>"),
+    newText("instructions-9", "Before starting the experiment, you will first be shown some practice trials.<br><br>"),
     newButton("wait", "Click here to continue").center().print().wait()
 )
 
 // training
-Template('practice_trials.csv', row =>
+Template('norming_practice_trials_whole_scenario_grouped.csv', row =>
     newTrial("practice-trial",
         newTimer("break", 500)
             .start()
@@ -159,7 +161,7 @@ Template('practice_trials.csv', row =>
             .global()
             .set(v=>Date.now())
         ,
-        newText("instructions", "<i>Read the following story and choose which interpretation better matches what the speaker means.<i><br><br>").center().print(),
+        newText("instructions", "<i>Read the following story and choose what the speaker means.<i><br><br>").center().print(),
         newText("sentence", row.context + "<br><br>") 
             .center()
             .print()
@@ -179,112 +181,65 @@ Template('practice_trials.csv', row =>
             .center()
             .print()
         ,
-        newText("question", "<b>" + row.whole_scenario_question + "</b><br><br>") 
+        newText("question", row.whole_scenario_question + "<br>") 
             .center()
             .print()
         , 
-        newText("A", "<b><span style='color:#C62828'>Interpretation A:</span></b> " + row.whole_scenario_deontic_reading + "<br><br>") 
+        newCanvas("side-by-side", 500,100)
+            .add(  0, 0, newCanvas("left", 250, 100)
+                        .add( "center at 50%", "middle at 50%", 
+                              newText("left", row.left_interpretation)
+                                .css("color", "#C62828")
+                                .css("center", "30px")
+                                .center() )
+                        .print())
+            .add(  250, 0, newCanvas("right", 250, 100)
+                        .add( "center at 50%", "middle at 50%", 
+                              newText("right", row.right_interpretation)
+                                .css("color", "#1565C0")
+                                .css("center", "30px")
+                                .center() )
+                        .print())
+            .center()
             .print()
-            .center()
-        ,
-        newText("B", "<b><span style='color:#1565C0'>Interpretation B:</span></b> " + row.whole_scenario_epistemic_reading + "<br><br>") 
-            .print()
-            .center()
-        ,
-        // newController("AcceptabilityJudgment", {
-        //     s: "",
-        //     q: "",
-        //     hasCorrect: row.expected_preference,
-        //     as: ["1", "2", "3", "4", "5"],
-        //     presentAsScale: true,
-        //     leftComment: "Definitely<br>Interpretation A",
-        //     rightComment: "Definitely<br>Interpretation B",
-        // } )
-        //     .center()
-        //     .print()
-        //     .log()
-        //     .wait()
-        // ,
-        // Tracks whether they answered on the scale or chose "Neither"
-        newVar("answerType", "")
-        ,
-        newTimer("answerWait", 3600000)
-            .start()
-        ,
-        
-        newScale("interpretation", " 1 ", " 2 ", " 3 ", " 4 ", " 5 ")
-            // .css("font-size", "1.3em")
-            .cssContainer({
-                "transform": "scale(1.15)",
-                "transform-origin": "center",
-                "margin": "10px 20px"
-            })
-            .radio()
-            .labelsPosition("top")
-            .before(
-                newText("leftLabel",
-                    "<i>Definitely<br>Interpretation A</i>"
-                )
-                .css("color", "#C62828")
-                .css("text-align", "right")
-                .css("margin-right", "25px")
-            )
-            .after(
-                newText("rightLabel",
-                    "<i>Definitely<br>Interpretation B</i>"
-                )
-                .css("color", "#1565C0")
-                .css("text-align", "left")
-                .css("margin-left", "25px")
-            )
-            .center()
             .log()
-            .callback(
-                getVar("answerType").set("scale"),
-                getButton("neither").disable(),
-                getTimer("answerWait").stop()
-            )
-            .print()
         ,
-    
-        newText("midpoint",
-            "<span style='font-size:0.9em'><i>3 = Both interpretations fit equally well</i></span><br>"
-        )
-            .center()
-            .print()
-        ,
-        
-        newButton("neither", "Neither interpretation works here")
-            .center()
-            .css("margin-top", "10px")
+        newSelector("selection")
+            .add(getText("left"), getText("right"))
+            .keys("F", "J")
             .log()
-            .callback(
-                getVar("answerType").set("neither"),
-                getScale("interpretation").disable(),
-                getTimer("answerWait").stop()
-            )
-            .print()
-        ,
-        
-        // Continue as soon as EITHER the scale or Neither is chosen
-        getTimer("answerWait")
             .wait()
-        // newText("<br><br>").print()
+        ,
+        getVar("RT")
+            .set(v=>Date.now()-v)
+        ,
+        getSelector("selection").test.selected(getText("left"))       
+            .success(
+                newText("choice", "<mark>You chose <i>\"" + row.left_interpretation + "\"</i>.</mark><br><br>")
+                    .center()
+                    .print()
+            )
+            .failure(
+                newText("choice", "<mark>You chose <i>\"" + row.right_interpretation + "\"</i>.</mark><br><br>")
+                    .center()
+                    .print()
+            )
         ,
         newText("feedback", "<mark>The option <i>\"" + row.expected_preference + "\"</i> is the correct answer.</mark><br><br>")
             .center().print()
         ,
         newButton("wait", "Click here to continue").center().print().wait()
         ,
-        getVar("RT")
-            .set(v=>Date.now()-v)
     )
+    .log("group" , row.group)
     .log("rt" , getVar("RT"))
     .log("practice_id", row.practice_id)
-    .log("judgment_flavor",row.judgment_flavor)
-    .log("expected_preference",row.expected_preference)
     .log("context",row.context)
     .log("response",row.whole_scenario_response)
+    .log("left_interpretation",row.left_interpretation)
+    .log("right_interpretation",row.right_interpretation)
+    .log("scale_order",row.scale_order)
+    .log("expected_preference",row.expected_preference)
 );
 
 // Instructions
@@ -307,54 +262,73 @@ Template('whole_scenario_stimulus.csv', row =>
             .global()
             .set(v=>Date.now())
         ,
-        newText("instructions", "<i>Read the following story and speaker response and answer the question using the scale below it.<i><br><br>").center().print(),
-        newText("sentence", row.context_order + "<br><br><br><br>") 
+        newText("instructions", "<i>Read the following story and choose what the speaker means.<i><br><br>").center().print(),
+        newText("sentence", row.context + "<br><br>") 
             .center()
             .print()
         ,
-        newText("question", row.context_only_question + "<br><br>") 
+        newText(
+            "response",
+            "<b>Speaker:</b>&nbsp;&nbsp;" + row.whole_scenario_response
+        )
+            .cssContainer({
+                "padding": "10px 18px",
+                "border": "1px solid #aaa",
+                "border-radius": "14px",
+                "background-color": "#f7f7f7",
+                "max-width": "750px",
+                "margin": "0 auto 25px auto"
+            })
             .center()
             .print()
         ,
-        newCanvas("side-by-side", 300,100)
-            .add(  0, 0, newCanvas("yes", 20, 100)
-                        .add( "center at 0%", "middle at 50%", 
-                              newText("yes", "Yes").center() )
+        newText("question", row.whole_scenario_question + "<br>") 
+            .center()
+            .print()
+        , 
+        newCanvas("side-by-side", 500,100)
+            .add(  0, 0, newCanvas("left", 250, 100)
+                        .add( "center at 50%", "middle at 50%", 
+                              newText("left", row.left_interpretation)
+                                .css("color", "#C62828")
+                                .css("center", "30px")
+                                .center() )
                         .print())
-            .add(  130, 0, newCanvas("no", 20, 100)
-                        .add( "center at 0%", "middle at 50%", 
-                              newText("no", "No").center() )
-                        .print())
-            .add(  300, 0, newCanvas("not enough information", 150, 100)
-                        .add( "center at 0%", "middle at 50%", 
-                              newText("third", row.context_only_option_3).center() )
+            .add(  250, 0, newCanvas("right", 250, 100)
+                        .add( "center at 50%", "middle at 50%", 
+                              newText("right", row.right_interpretation)
+                                .css("color", "#1565C0")
+                                .css("center", "30px")
+                                .center() )
                         .print())
             .center()
             .print()
             .log()
         ,
         newSelector("selection")
-            .add(getText("yes"), getText("no"), getText("third"))
-            .keys("1", "2", "3")
+            .add(getText("left"), getText("right"))
+            .keys("F", "J")
             .log()
             .wait()
-            .frame("dashed 1.5px blue")
         ,
         getVar("RT")
             .set(v=>Date.now()-v)
+        ,
     )
+    .log("group" , row.group)
     .log("rt" , getVar("RT"))
     .log("item_id", row.item_id)
-    .log("judgement_flavour",row.judgement_flavour)
-    .log("modal_possibility", row.modal_possibility)
-    .log("context", row.context_order)
-    .log("context_only_question",row.context_only_question)
-    .log("domain", row.domain)
-    .log("temporal_orientation", row.temporal_orientation)
-    .log("order", row.order)
-    .log("group", row.group)
+    .log("context",row.context)
+    .log("response",row.whole_scenario_response)
+    .log("left_interpretation",row.left_interpretation)
+    .log("right_interpretation",row.right_interpretation)
+    .log("scale_order",row.scale_order)
+    .log("domain",row.domain)
+    .log("temporal_orientation",row.temporal_orientation)
+    .log("order",row.order)
+    .log("response_condition",row.response_type)
+    .log("response_syntax",row.syntax)
 );
-
 
 // end experiment
 newTrial("end",
@@ -378,7 +352,7 @@ newTrial("end",
 
 newTrial( "confirmation-prolific" ,
     // This is where you should put the link from the last step.
-    newText("<p><a href='https://app.prolific.com/submissions/complete?cc=C4MBF4QD'>Click here to validate your submission on Prolific</a></p>")
+    newText("<p><a href='https://app.prolific.com/submissions/complete?cc=CP54NJIB'>Click here to validate your submission on Prolific</a></p>")
         .center()
         .print()
     ,

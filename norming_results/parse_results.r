@@ -33,6 +33,7 @@ read.pcibex <- function(filepath, auto.colnames=TRUE, fun.col=function(col,cols)
 }
 
 # Read in results file
-file_name <- "/Users/lli/Desktop/code/projects/modals/norming_results/context_only_results.csv"
+# file_name <- "/Users/lli/Desktop/code/projects/modals/norming_results/context_only_results.csv"
+file_name <- "/Users/lli/Desktop/code/projects/modals/norming_results/whole_context_results.csv"
 results <- read.pcibex(file_name)
 write.csv(results, file_name, row.names = FALSE)
