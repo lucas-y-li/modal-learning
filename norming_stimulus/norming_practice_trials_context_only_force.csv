@@ -1,0 +1,5 @@
+practice_id,judgment_type,expected_response,context,context_only_question
+P1,Root Possibility,Yes,"Ava is volunteering at a community garden. Volunteers with green badges are allowed to use the greenhouse, and Ava has a green badge.","According to the story, is Ava <b>permitted</b> to use the greenhouse?"
+P2,Epistemic Possibility,No,"Leo is at work in his office right now. A live video call shows Leo sitting at his desk. The city library is several miles away.","According to the story, is it <b>possible</b> that Leo is at the city library right now?"
+P3,Root Necessity,No,"Maya is volunteering at an animal shelter. Volunteers may choose whether to work in the adoption room or at the front desk.","According to the story, is Maya <b>required</b> to work in the adoption room?"
+P4,Epistemic Necessity,Yes,"A package is sitting on the front porch. A live security camera shows the package there right now.","According to the story, is it <b>certain</b> that the package is on the front porch?"
